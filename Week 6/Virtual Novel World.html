@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Virtual Novels World</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				height: 100%;
+			}
+
+			body {
+				background-image: url("1.jpg");
+				height: 100%; 
+
+/* Center and scale the image nicely */
+background-position: center;
+background-repeat: no-repeat;
+background-size: cover;
+				margin: 0;
+				font-family: Helvetica, sans-serif;;
+				overflow: hidden;
+			}
+
+			a {
+				color: #ffffff;
+			}
+
+			#info {
+				position: absolute;
+				width: 100%;
+				color: #ffffff;
+				padding: 10px;
+				font-family: Monospace;
+				font-size: 13px;
+				font-weight: bold;
+				text-align: center;
+				z-index: 1;
+			}
+
+			#menu {
+				position: absolute;
+				bottom: 20px;
+				width: 100%;
+				text-align: center;
+			}
+
+			
+			.element {
+				border-radius: 30%;
+				width: 150px;
+				height: 160px;
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+				border: 1px solid rgba(127,255,255,0.25);
+				text-align: center;
+				cursor: default;
+				box-shadow: 10px 10px;
+			}
+
+			.element:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.75);
+				border: 1px solid rgba(127,255,255,0.75);
+			}
+
+				.element .number {
+					position: absolute;
+					top: 20px;
+					right: 20px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+
+				.element .title {
+					position: absolute;
+					top: 40px;
+					left: 0px;
+					right: 0px;
+					font-size: 25px;
+					font-weight: bold;
+					color: rgba(255,255,255,0.75);
+					text-shadow: 0 0 10px rgba(0,255,255,0.95);
+				}
+
+				.element .details {
+					position: absolute;
+					bottom: 15px;
+					left: 0px;
+					right: 0px;
+					font-size: 15px;
+					color: rgba(127,255,255,0.75);
+				}
+
+			button {
+				color: rgba(127,255,255,0.75);
+				background: transparent;
+				outline: 1px solid rgba(127,255,255,0.75);
+				border: 50px;
+				padding: 5px 10px;
+				cursor: pointer;
+			}
+			button:hover {
+				background-color: rgba(0,255,255,0.5);
+			}
+			button:active {
+				color: #000000;
+				background-color: rgba(0,255,255,0.75);
+			}
+
+		</style>
+	</head>
+	<body>
+	    <div style="color:rgba(127,255,255,0.75); text-align:left;font-size:65%">Use the buttons below to change the view; 
+			Scroll up to go deep inside the view and scroll down to come out of the view;
+			 Hold the mouse and click left button together to rotate the view; 
+			 Click on any novel and get directed to view the summary and the availabile options of the respective novel; 
+			 If your laptop is touch enable use the touch screen to perform actions.
+	    </div>
+		<script src="js/three.js"></script>
+		<script src="js/tween.min.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/CSS3DRenderer.js"></script>
+		
+		<div id="container"></div>
+		<div id="menu">
+			<button id="table">TABLE</button>
+			<button id="sphere">SPHERE</button>
+			<button id="helix">HELIX</button>
+			<button id="grid">GRID</button>
+		</div>
+
+		<script>
+
+			var table = [
+				"1984", "George Orwell", "Classics", 1, 1,
+				"Hamlet", "William Shakespeare", "Drama", 1, 2,
+				"Macbeth", "William Shakespeare", "Drama", 1, 3,
+				"Dracula", "Bram Stoker", "Horror", 1, 4,
+				"Othello", "William Shakespeare", "Revenge", 1, 5,
+				"Uglies", "Scott Westerfeld", "Science Fiction", 1, 6,
+				"Persuasion", "Jane Austen  ", "Romance", 1, 7,
+				"Night", "Elie Wiesel", "History", 1, 8,
+				"Holes", "Louis Sachar", "CHildren", 1, 9,
+				"Rebecca", "Daphne du Maurier", "Mystery", 1, 10,
+				"Emma", "Jane Austen", "Romance", 10, 1,
+				"Twilight", "Stephenie Meyer", "Fantasy", 10, 2,
+				"Eclipse", "Stephenie Meyer", "Fantasy", 10, 3,
+				"Heidi", "Johanna Spyri ", "Classic", 10, 4,
+				"Speak", "Laurie Halse Anderson", "Contemporary", 10, 5,
+				"Matilda", "Roald Dahl", "Humor", 10, 6,
+				"It", "Stephen King", "Thriller", 10, 7,
+				"Atonement", "Ian McEwan", "Romance", 10, 8,
+				"Kidnapped", "Robert Louis Stevenson ", "Adventure", 10, 9,
+				"Carrie", "Stephen King", "Fantasy", 10, 10,
+				"Cranford", "Elizabeth Gaskell", "Historical Fiction", 2, 1,
+				"Madeline", "Ludwig Bemelmans", "Classics", 2, 2,
+				"Ivanhoe", "Walter Scott", "Adventure", 2, 3,
+				"Mockingjay", "Suzanne Collins", "Adventure", 2, 4,
+				"Pretties","Scott Westerfeld", "Sci-fiction", 2, 5,
+				"Shogun", "James Clavell", "Historical", 2, 6,
+				"Beloved", "Toni Morrison", "Literature", 2, 7,
+				"Coraline", "Neil Gaiman", "Horror", 2, 8,
+				"Room", "Emma Donoghue", "Contemporary", 2, 9,
+				"Beowulf", "Seamus Heaney", "Fantasy", 9, 1,
+				"Divergent", "Veronica Roth", "Sci-Fiction", 9, 2,
+				"Frankenstein", "Mary Wollstonecraft Shelley", "Sci-Fi", 9, 3,
+				"Candide", "Voltaire", "Philosophy", 9, 4,
+				"Watchmen", "Alan Moore", "Fantasy", 9, 5,
+				"Neverwhere", "Neil Gaiman", "Sci-fi", 9, 6,
+				"Possession", "A.S. Byatt", "Mystery", 9, 7,
+				"Pygmalion", "George Bernard Shaw", "Drama", 9, 8,
+				"Specials", "Scott Westerfeld", "Sci-fi", 9, 9,
+				"Tartuffe", "Molière", "Drama", 3, 1,
+				"Middlemarch", "George Eliot", "Literature", 3, 2,
+				"Kim", "Rudyard Kipling", "Adventure", 3, 3,
+				"Dune", "Frank Herbert", "Classic", 3, 4,
+				"Lolita", "Vladimir Nabokov", "Literature", 3, 5,
+				"Cosmos", "Carl Sagan", "Science", 3, 6,
+				"Anonymity", "Amber Lea Easton", "Romance", 3, 7,
+				"Foundation", "Isaac Asimov", "Sci-fi", 3, 8,
+				"Stardust", "Neil Gaiman", "Fantasy", 8, 1,
+				"Antigone", "Sophocles", "Drama", 8, 2,
+				"Fost", "Johann Wolfgang von Goethe", "Poetry", 8, 3,
+				"Ulysses", "James Joyce", "Literature", 8, 4,
+				"Blindness", "José Saramago", "Horror", 8, 5,
+				"Fingersmith", "Sarah Waters", "Historical", 8, 6,
+				"Brisingr", "Christopher Paolini", "Fantasy", 8, 7,
+				"Demons", "Fyodor Dostoyevsky", "Cultural", 8, 8,
+				"Dubliners", "James Joyce", "Literature", 4, 1,
+				"Extras", "Scott Westerfeld", "Sci-fi", 4, 2,
+				"Dissolution", "C.J. Sansom", "Mystery", 4, 3,
+				"Hatchet", "Gary Paulsen", "Adventure", 4, 4,
+				"Shiver", "Maggie Stiefvater", "Romance", 4, 5,
+				"Enchantment", "Orson Scott Card", "Romance", 4, 6,
+				"Fatherland", "Robert Harris", "Thriller", 4, 7,
+				"Utopia", "Thomas More", "Politics", 7, 1,
+				"Medea", "Euripides", "Drama", 7, 2,
+				"Eldest", "Christopher Paolini", "Fantasy", 7, 3,
+				"Proof", "Dick Francis", "Mystery", 7, 4,
+				"Disgraced", "J.M. Coetzee", "Tragedy", 7, 5,
+				"Matched", "Ally Condie", "Romance", 7, 6,
+				"Metamorphoses", "Ovid", "Tragedy", 7, 7,
+				"Hunger", "Knut Hamsun", "Psychological Fiction", 5, 1,
+				"Exodus", "Leon Uris", "Historical Fiction", 5, 2,
+				"Bunnicula", "James Howe", "Humor", 5, 3,
+				"Redwall", "Brian Jacques", "Fantasy", 5, 4,
+				"Sovereign", "C.J. Sansom", "Historical Mystery", 5, 5,
+				"Timeline", "Michael Crichton", "Science Fiction", 5, 6,
+				"Eragon", "Christopher Paolini", "Fiction", 6, 1,
+				"Risk", "Dick Francis", "Mystery", 6, 2,
+				"Amerika", "Franz Kafka", "Speculative Fiction", 6, 3,
+				"Trainspotting", "Irvine Welsh", "Black comedy", 6, 4,
+				"Flipped", "Wendelin Van Draanen", "Romance", 6, 5,
+				"Babbitt", "Sinclair Lewis", "Satire", 21, 1,
+				"Deception", "Amanda Quick", "Historical", 21, 2,
+				"Greenwich", "Susan Cooper", "Fantasy", 21, 3,
+				"Scandal", "Amanda Quick", "Romance", 21, 4,
+				"Fairest", "Gail Carson Levine", "Romance", 21, 5,
+				"Outlander", "Diana Gabaldon ", "Historical", 21, 6,
+				"Nemesis", "Agatha Christie", "Mystery", 21, 7,
+				"Heartstone", "C.J. Sansom", "Mystery", 21, 8,
+				"Linger", "Maggie Stiefvater", "Paranormal Romance", 21, 9,
+				"Straight", "Dick Francis", "Thriller", 21, 10,
+				"Page", "Tamora Pierce", "Fanatsy", 11, 2,
+				"Maurice", "E.M. Forster", "Classic", 11, 3,
+				"Nerve", "Dick Francis", "Crime", 11, 4,
+				"Scoop", "Evelyn Waugh", "Humor", 11, 5,
+				"Shame", "Salman Rushdie", "Cultural", 11, 6,
+				"Revelation", "C.J. Sansom", "Crime", 11, 7,
+				"Mash", "Richard Hooker", "Humor", 11, 8,
+			    "Stargirl", "Jerry Spinelli", "Humor", 11, 9,
+				"Shibumi", "Trevanian", "Thriller", 11, 10,
+				"Genie-alogy", "H.B. Morris", "Sci-fi", 20, 2,
+				"Skinwalkers", "Tony Hillerman", "Crime", 20, 3,
+				"Airborn", "Kenneth Oppel", "Sci-fi", 20, 4,
+				"Katherine", "Anya Seton", "Historical", 20, 5,
+				"Virals", "Kathy Reichs", "Mystery", 20, 6,
+				"Moo", "Jane Smiley", "Humor", 20, 7,
+				"Hyperion", "Dan Simmons", "Sci-Fi", 20, 8,
+			    "Seduction", "Amanda Quick", "Romance", 20, 9,
+				"Stellaluna", "Janell Cannon", "Children", 20, 10,
+				"Neuromancer", "William Gibson", "Sci-fi", 12, 3,
+				"Mysery", "Stephen King", "Thriller", 12, 4,
+				"Postmortem", "Patricia Cornwell", "Suspense", 12, 5,
+				"Bolt", "Dick Francis", "Mystery", 12, 6,
+				"Marked", "P.C. Cast", "Vampires", 12, 7,
+				"Unwind", "Neal Shusterman", "Sci-Fi", 12, 8,
+				"Inheritance", "Christopher Paolini", "Dragons Fantasy", 12, 9,
+				"Infidel", "Ayaan Hirsi Ali", "Bibliography", 12, 10,
+				"Feathered", "Laura Kasischke", "Contemporary", 19, 3,
+				"Loser", "Jerry Spinelli", "Children", 19, 4,
+				"Hawaii", "James A. Michener", "Classical", 19, 5,
+				"Wonder", "R.J. Palacio", "Contemporary", 19, 6,
+				"Middlesex", "Jeffrey Eugenides", "Historical", 19, 7,
+				"Walden", "Henry David Thoreau", "Literature", 19, 8,
+				"Ficciones", "Jorge Luis Borges", "Classic", 19, 9,
+				"Farthing", "Jo Walton", "Sci-Fi", 19, 10,
+				"Insurgent", "Veronica Roth", "Sci-Fi", 13, 4,
+				"Siddhartha", "Hermann Hesse", "Religion", 13, 5,
+				"Herzog", "Saul Bellow", "Literature", 13, 6,
+				"Crash", "J.G. Ballard", "Sci-Fi", 13, 7,
+				"Elantris", "Brandon Sanderson", "Fantasy", 13, 8,
+				"Pericles", "William Shakespeare", "Drama", 13, 9,
+				"Blankets", "Craig Thompson", "Graphic Novel", 13, 10,
+				"Hunger #2", "Michael Grant", "Sci-Fi", 18, 4,
+				"We", "Yevgeny Zamyatin", "Sci-Fi", 18, 5,
+				"Nostromo", "Joseph Conrad", "Literature", 18, 6,
+				"Scaramouche", "Rafael Sabatini", "Adventure", 18, 7,
+				"Rules", "Cynthia Lord", "Children", 18, 8,
+				"Schooled", "Gordon Korman", "Humor", 18, 9,
+				"Contact", "Carl Sagan", "Sci-Fi", 18, 10,	
+				"She", "H. Rider Haggard", "Adventure", 14, 5,
+				"Villette", "Charlotte Brontë", "Romance", 14, 6,
+				"Cashelmera", "Susan Howatch", "Cultural", 14, 7,
+				"Curtain", "Agatha Christie", "Mystery", 14, 8,
+				"Orlando", "Virginia Woolf", "Classic", 14, 9,
+				"Legend", "Marie Lu", "Romance", 14, 10,
+				"Frederica", "Georgette Heyer", "Historical", 17, 5,
+				"Regeneration", "Pat Barker", "War", 17, 6,
+				"Starters", "Lissa Price", "Sci-Fi", 17, 7,
+				"Amsterdram", "Ian McEwan", "Contemporary", 17, 8,
+				"Ungifted", "Gordon Korman", "Humor", 17, 9,
+				"Nemesis", "Isaac Asimov", "Sci-Fi", 17, 10,
+				"Impossible", "Nancy Werlin", "Romance", 15, 6,
+				"Ravished", "Amanda Quick", "Historical", 15, 7,
+				"Perfect", "Sara Shepard", "Romance", 15, 8,
+				"Headlong", "Michael Frayn", "Literature", 15, 9,
+				"Steppenwolf", "Hermann Hesse", "Literature", 15, 10,
+				"Firewall", "Henning Mankell", "Crime", 16, 6,
+				"Seraphina", "Rachel Hartman", "Fantasy", 16, 7,
+				"Jinx", "Meg Cabot", "Romance", 16, 8,
+				"Gone", "Michael Grant", "Sci-Fi", 16, 9,
+				"Glow", "Amy Kathleen Ryan", "Sci-Fi", 16, 10,
+					];
+
+			var camera, scene, renderer;
+			var controls;
+			var global;
+
+			var objects = [];
+			var targets = { table: [], sphere: [], helix: [], grid: [] };
+
+			function clicker()
+{
+alert(global);
+};
+			
+			init();
+			animate();
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.z = 3000;
+
+				scene = new THREE.Scene();
+				var cube = new THREE.Object3D();
+	            scene.add( cube );
+				
+
+				// table
+
+				for ( var i = 0; i < table.length; i += 5 ) {
+
+					var element = document.createElement( 'div' );
+					element.className = 'element';
+					element.style.backgroundColor = 'rgba(255,10,11,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+				
+					var number = document.createElement( 'div' );
+					number.className = 'number';
+					number.textContent = (i/5) + 1;
+					element.appendChild( number );
+
+					var title = document.createElement( 'div' );
+					title.className = 'title';
+					title.textContent = table[ i ];
+					element.appendChild( title );
+			        
+
+					var details = document.createElement( 'div' );
+					details.className = 'details';
+					details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
+					element.appendChild( details );
+
+					
+					
+				//	element.addEventListener("click", clicker);					
+
+					var object = new THREE.CSS3DObject( element );
+					object.position.x = Math.random() * 4000 - 2000;
+					object.position.y = Math.random() * 4000 - 2000;
+					object.position.z = Math.random() * 4000 - 2000;
+					//scene.add( object );
+					cube.add( object );
+
+					objects.push( object );
+
+					//
+
+					var object = new THREE.Object3D();
+					object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
+					object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+
+					targets.table.push( object );
+
+					
+				}
+
+				objects[0].element.onclick = function(){window.open("https://www.goodreads.com/book/show/5470.1984");};
+				objects[1].element.onclick = function(){window.open("https://www.goodreads.com/book/show/1420.Hamlet");};
+				objects[2].element.onclick = function(){window.open("https://www.goodreads.com/book/show/8852.Macbeth");};
+				objects[3].element.onclick = function(){window.open("https://www.goodreads.com/book/show/17245.Dracula");};
+				objects[4].element.onclick = function(){window.open("https://www.goodreads.com/book/show/12996.Othello");};
+				objects[5].element.onclick = function(){window.open("https://www.goodreads.com/book/show/24770.Uglies");};
+				objects[6].element.onclick = function(){window.open("https://www.goodreads.com/book/show/31693.Persuasion");};
+				objects[7].element.onclick = function(){window.open("https://www.goodreads.com/book/show/1617.Night");};
+				objects[8].element.onclick = function(){window.open("https://www.goodreads.com/book/show/38709.Holes");};
+				objects[9].element.onclick = function(){window.open("https://www.goodreads.com/book/show/12873.Rebecca");};
+				objects[10].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6969.Emma");};
+				objects[11].element.onclick = function(){window.open("https://www.goodreads.com/book/show/41865.Twilight");};
+				objects[12].element.onclick = function(){window.open("https://www.goodreads.com/book/show/428263.Eclipse");};
+				objects[13].element.onclick = function(){window.open("https://www.goodreads.com/book/show/93.Heidi");};
+				objects[14].element.onclick = function(){window.open("https://www.goodreads.com/book/show/439288.Speak");};
+				objects[15].element.onclick = function(){window.open("https://www.goodreads.com/book/show/39988.Matilda");};
+				objects[16].element.onclick = function(){window.open("https://www.goodreads.com/book/show/18342.It");};
+				objects[17].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6867.Atonement");};
+				objects[18].element.onclick = function(){window.open("https://www.goodreads.com/book/show/325128.Kidnapped");};
+				objects[19].element.onclick = function(){window.open("https://www.goodreads.com/book/show/10592.Carrie");};
+				objects[20].element.onclick = function(){window.open("https://www.goodreads.com/book/show/182381.Cranford");};
+				objects[21].element.onclick = function(){window.open("https://www.goodreads.com/book/show/475339.Madeline");};
+				objects[22].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6440.Ivanhoe");};
+				objects[23].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7260188-mockingjay");};
+				objects[24].element.onclick = function(){window.open("https://www.goodreads.com/book/show/24768.Pretties");};
+				objects[25].element.onclick = function(){window.open("https://www.goodreads.com/book/show/402093.Sh_gun");};
+				objects[26].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6149.Beloved");};
+				objects[27].element.onclick = function(){window.open("https://www.goodreads.com/book/show/17061.Coraline");};
+				objects[28].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7937843-room");};
+				objects[29].element.onclick = function(){window.open("https://www.goodreads.com/book/show/52357.Beowulf");};
+				objects[30].element.onclick = function(){window.open("https://www.goodreads.com/book/show/13335037-divergent");};
+				objects[31].element.onclick = function(){window.open("https://www.goodreads.com/book/show/18490.Frankenstein");};
+				objects[32].element.onclick = function(){window.open("https://www.goodreads.com/book/show/19380.Candide");};
+				objects[33].element.onclick = function(){window.open("https://www.goodreads.com/book/show/472331.Watchmen");};
+				objects[34].element.onclick = function(){window.open("https://www.goodreads.com/book/show/14497.Neverwhere");};
+				objects[35].element.onclick = function(){window.open("https://www.goodreads.com/book/show/41219.Possession");};
+				objects[36].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7714.Pygmalion");};
+				objects[37].element.onclick = function(){window.open("https://www.goodreads.com/book/show/24765.Specials");};
+				objects[38].element.onclick = function(){window.open("https://www.goodreads.com/book/show/263994.Tartuffe");};
+				objects[39].element.onclick = function(){window.open("https://www.goodreads.com/book/show/19089.Middlemarch");};
+				objects[40].element.onclick = function(){window.open("https://www.goodreads.com/book/show/210834.Kim");};
+				objects[41].element.onclick = function(){window.open("https://www.goodreads.com/book/show/234225.Dune");};
+				objects[42].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7604.Lolita");};
+				objects[43].element.onclick = function(){window.open("https://www.goodreads.com/book/show/55030.Cosmos");};
+				objects[44].element.onclick = function(){window.open("https://www.goodreads.com/book/show/19548180-anonymity");};
+				objects[45].element.onclick = function(){window.open("https://www.goodreads.com/book/show/29579.Foundation");};
+				objects[46].element.onclick = function(){window.open("https://www.goodreads.com/book/show/16793.Stardust");};
+				objects[47].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7728.Antigone");};
+				objects[48].element.onclick = function(){window.open("https://www.goodreads.com/book/show/14706.Faust");};
+				objects[49].element.onclick = function(){window.open("https://www.goodreads.com/book/show/338798.Ulysses");};
+				objects[50].element.onclick = function(){window.open("https://www.goodreads.com/book/show/2526.Blindness");};
+				objects[51].element.onclick = function(){window.open("https://www.goodreads.com/book/show/45162.Fingersmith");};
+				objects[52].element.onclick = function(){window.open("https://www.goodreads.com/book/show/2248573.Brisingr");};
+				objects[53].element.onclick = function(){window.open("https://www.goodreads.com/book/show/5695.Demons");};
+				objects[54].element.onclick = function(){window.open("https://www.goodreads.com/book/show/11012.Dubliners");};
+				objects[55].element.onclick = function(){window.open("https://www.goodreads.com/book/show/493456.Extras");};
+				objects[56].element.onclick = function(){window.open("https://www.goodreads.com/book/show/138685.Dissolution");};
+				objects[57].element.onclick = function(){window.open("https://www.goodreads.com/book/show/50.Hatchet");};
+				objects[58].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6068551-shiver");};
+				objects[59].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7973.Enchantment");};
+				objects[60].element.onclick = function(){window.open("https://www.goodreads.com/book/show/56842.Fatherland");};
+				objects[61].element.onclick = function(){window.open("https://www.goodreads.com/book/show/18414.Utopia");};
+				objects[62].element.onclick = function(){window.open("https://www.goodreads.com/book/show/752900.Medea");};
+				objects[63].element.onclick = function(){window.open("https://www.goodreads.com/book/show/45978.Eldest");};
+				objects[64].element.onclick = function(){window.open("https://www.goodreads.com/book/show/8531.Proof");};
+				objects[65].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6192.Disgrace");};
+				objects[66].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7735333-matched");};
+				objects[67].element.onclick = function(){window.open("https://www.goodreads.com/book/show/1715.Metamorphoses");};
+				objects[68].element.onclick = function(){window.open("https://www.goodreads.com/book/show/32585.Hunger");};
+				objects[69].element.onclick = function(){window.open("https://www.goodreads.com/book/show/42697.Exodus");};
+				objects[70].element.onclick = function(){window.open("https://www.goodreads.com/book/show/281235.Bunnicula");};
+				objects[71].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7996.Redwall");};
+				objects[72].element.onclick = function(){window.open("https://www.goodreads.com/book/show/138684.Sovereign");};
+				objects[73].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7669.Timeline");};
+				objects[74].element.onclick = function(){window.open("https://www.goodreads.com/book/show/113436.Eragon");};
+				objects[75].element.onclick = function(){window.open("https://www.goodreads.com/book/show/8530.Risk");};
+				objects[76].element.onclick = function(){window.open("https://www.goodreads.com/book/show/22911.Amerika");};
+				objects[77].element.onclick = function(){window.open("https://www.goodreads.com/book/show/23955.Trainspotting");};
+				objects[78].element.onclick = function(){window.open("https://www.goodreads.com/book/show/331920.Flipped");};
+				objects[79].element.onclick = function(){window.open("https://www.goodreads.com/book/show/771819.Babbitt");};
+				objects[80].element.onclick = function(){window.open("https://www.goodreads.com/book/show/330306.Deception");};
+				objects[81].element.onclick = function(){window.open("https://www.goodreads.com/book/show/24963.Greenwitch");};
+				objects[82].element.onclick = function(){window.open("https://www.goodreads.com/book/show/367749.Scandal");};
+				objects[83].element.onclick = function(){window.open("https://www.goodreads.com/book/show/183660.Fairest");};
+				objects[84].element.onclick = function(){window.open("https://www.goodreads.com/book/show/10964.Outlander");};
+				objects[85].element.onclick = function(){window.open("https://www.goodreads.com/book/show/31304.Nemesis");};
+				objects[86].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7027569-heartstone");};
+				objects[87].element.onclick = function(){window.open("https://www.goodreads.com/book/show/9820781-linger");};
+				objects[88].element.onclick = function(){window.open("https://www.goodreads.com/book/show/8541.Straight");};
+				objects[89].element.onclick = function(){window.open("https://www.goodreads.com/book/show/153785.Page");};
+				objects[90].element.onclick = function(){window.open("https://www.goodreads.com/book/show/3103.Maurice");};
+				objects[91].element.onclick = function(){window.open("https://www.goodreads.com/book/show/8537.Nerve");};
+				objects[92].element.onclick = function(){window.open("https://www.goodreads.com/book/show/30919.Scoop");};
+				objects[93].element.onclick = function(){window.open("https://www.goodreads.com/book/show/4831.Shame");};
+				objects[94].element.onclick = function(){window.open("https://www.goodreads.com/book/show/820480.Revelation");};
+				objects[95].element.onclick = function(){window.open("https://www.goodreads.com/book/show/2893489-mash");};
+				objects[96].element.onclick = function(){window.open("https://www.goodreads.com/book/show/22232.Stargirl");};
+				objects[97].element.onclick = function(){window.open("https://www.goodreads.com/book/show/1059.Shibumi");};
+				objects[98].element.onclick = function(){window.open("https://www.goodreads.com/book/show/25410135-genie-alogy");};
+				objects[99].element.onclick = function(){window.open("https://www.goodreads.com/book/show/48162.Skinwalkers");};
+				objects[100].element.onclick = function(){window.open("https://www.goodreads.com/book/show/428042.Airborn");};
+				objects[101].element.onclick = function(){window.open("https://www.goodreads.com/book/show/33609.Katherine");};
+				objects[102].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7800188-virals");};
+				objects[103].element.onclick = function(){window.open("https://www.goodreads.com/book/show/161194.Moo");};
+				objects[104].element.onclick = function(){window.open("https://www.goodreads.com/book/show/77566.Hyperion");};
+				objects[105].element.onclick = function(){window.open("https://www.goodreads.com/book/show/247372.Seduction");};
+				objects[106].element.onclick = function(){window.open("https://www.goodreads.com/book/show/786256.Stellaluna");};
+				objects[107].element.onclick = function(){window.open("https://www.goodreads.com/book/show/22328.Neuromancer");};
+				objects[108].element.onclick = function(){window.open("https://www.goodreads.com/book/show/10614.Misery");};
+				objects[109].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6534.Postmortem");};
+				objects[110].element.onclick = function(){window.open("https://www.goodreads.com/book/show/8552.Bolt");};
+				objects[111].element.onclick = function(){window.open("https://www.goodreads.com/book/show/30183.Marked");};
+				objects[112].element.onclick = function(){window.open("https://www.goodreads.com/book/show/764347.Unwind");};
+				objects[113].element.onclick = function(){window.open("https://www.goodreads.com/book/show/7664041-inheritance");};
+				objects[114].element.onclick = function(){window.open("https://www.goodreads.com/book/show/81227.Infidel");};
+				objects[115].element.onclick = function(){window.open("https://www.goodreads.com/book/show/2015674.Feathered");};
+				objects[116].element.onclick = function(){window.open("https://www.goodreads.com/book/show/87220.Loser");};
+				objects[117].element.onclick = function(){window.open("https://www.goodreads.com/book/show/12658.Hawaii");};
+				objects[118].element.onclick = function(){window.open("https://www.goodreads.com/book/show/11387515-wonder");};
+				objects[119].element.onclick = function(){window.open("https://www.goodreads.com/book/show/2187.Middlesex");};
+				objects[120].element.onclick = function(){window.open("https://www.goodreads.com/book/show/16902.Walden");};
+				objects[121].element.onclick = function(){window.open("https://www.goodreads.com/book/show/426504.Ficciones");};
+				objects[122].element.onclick = function(){window.open("https://www.goodreads.com/book/show/183740.Farthing");};
+				objects[123].element.onclick = function(){window.open("https://www.goodreads.com/book/show/11735983-insurgent");};
+				objects[124].element.onclick = function(){window.open("https://www.goodreads.com/book/show/52036.Siddhartha");};
+				objects[125].element.onclick = function(){window.open("https://www.goodreads.com/book/show/6551.Herzog");};
+				objects[126].element.onclick = function(){window.open("https://www.goodreads.com/book/show/70241.Crash");};
+				objects[127].element.onclick = function(){window.open("https://www.goodreads.com/book/show/68427.Elantris");};
+				objects[128].element.onclick = function(){window.open("https://www.goodreads.com/book/show/104813.Pericles");};
+				objects[129].element.onclick = function(){window.open("https://www.goodreads.com/book/show/25179.Blankets");};
+				objects[130].element.onclick = function(){window.open("https://www.goodreads.com/book/show/5047880-hunger");};
+				objects[131].element.onclick = function(){window.open("https://www.goodreads.com/book/show/76171.We");};
+				objects[132].element.onclick = function(){window.open("https://www.goodreads.com/book/show/115476.Nostromo");};
+				objects[133].element.onclick = function(){window.open("https://www.goodreads.com/book/show/938105.Scaramouche");};
+				objects[134].element.onclick = function(){window.open("https://www.goodreads.com/book/show/222458.Rules");};
+				objects[135].element.onclick = function(){window.open("https://www.goodreads.com/book/show/1025250.Schooled");};
+				objects[136].element.onclick = function(){window.open("https://www.goodreads.com/book/show/61666.Contact");};
+				objects[137].element.onclick = function(){window.open("https://www.goodreads.com/book/show/682681.She");};
+				objects[138].element.onclick = function(){window.open("https://www.goodreads.com/book/show/31173.Villette");};
+				objects[139].element.onclick = function(){window.open("https://www.goodreads.com/book/show/236709.Cashelmara");};
+				objects[140].element.onclick = function(){window.open("https://www.goodreads.com/book/show/81903.Curtain");};
+				objects[141].element.onclick = function(){window.open("https://www.goodreads.com/book/show/18839.Orlando");};
+				objects[142].element.onclick = function(){window.open("https://www.goodreads.com/book/show/9275658-legend");};
+				objects[143].element.onclick = function(){window.open("https://www.goodreads.com/book/show/311196.Frederica");};
+				objects[144].element.onclick = function(){window.open("https://www.goodreads.com/book/show/5872.Regeneration");};
+				objects[145].element.onclick = function(){window.open("https://www.goodreads.com/book/show/11861062-starters");};
+				objects[146].element.onclick = function(){window.open("https://www.goodreads.com/book/show/187255.Amsterdam");};
+				objects[147].element.onclick = function(){window.open("https://www.goodreads.com/book/show/13623777-ungifted");};
+				objects[148].element.onclick = function(){window.open("https://www.goodreads.com/book/show/302625.Nemesis");};
+				objects[149].element.onclick = function(){window.open("https://www.goodreads.com/book/show/3188580-impossible");};
+				objects[150].element.onclick = function(){window.open("https://www.goodreads.com/book/show/367689.Ravished");};
+				objects[151].element.onclick = function(){window.open("https://www.goodreads.com/book/show/1651302.Perfect");};
+				objects[152].element.onclick = function(){window.open("https://www.goodreads.com/book/show/132245.Headlong");};
+				objects[153].element.onclick = function(){window.open("https://www.goodreads.com/book/show/158014.Steppenwolf");};
+				objects[154].element.onclick = function(){window.open("https://www.goodreads.com/book/show/39798.Firewall");};
+				objects[155].element.onclick = function(){window.open("https://www.goodreads.com/book/show/19549841-seraphina");};
+				objects[156].element.onclick = function(){window.open("https://www.goodreads.com/book/show/207684.Jinx");};
+				objects[157].element.onclick = function(){window.open("https://www.goodreads.com/book/show/2536134.Gone");};
+				objects[158].element.onclick = function(){window.open("https://www.goodreads.com/book/show/10174795-glow");};
+
+
+
+                
+				// sphere
+
+				var vector = new THREE.Vector3();
+				var spherical = new THREE.Spherical();
+
+				for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+					var phi = Math.acos( -1 + ( 2 * i ) / l );
+					var theta = Math.sqrt( l * Math.PI ) * phi;
+
+					var object = new THREE.Object3D();
+
+					spherical.set( 800, phi, theta );
+
+					object.position.setFromSpherical( spherical );
+
+					vector.copy( object.position ).multiplyScalar( 2 );
+
+					object.lookAt( vector );
+
+					targets.sphere.push( object );
+
+				}
+
+				// helix
+
+				var vector = new THREE.Vector3();
+				var cylindrical = new THREE.Cylindrical();
+
+				for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+					var theta = i * 0.175 + Math.PI;
+					var y = - ( i * 8 ) + 450;
+
+					var object = new THREE.Object3D();
+
+					cylindrical.set( 900, theta, y );
+
+					object.position.setFromCylindrical( cylindrical );
+
+					vector.x = object.position.x * 2;
+					vector.y = object.position.y;
+					vector.z = object.position.z * 2;
+
+					object.lookAt( vector );
+
+					targets.helix.push( object );
+
+				}
+
+				// grid
+
+				for ( var i = 0; i < objects.length; i ++ ) {
+
+					var object = new THREE.Object3D();
+
+					object.position.x = ( ( i % 5 ) * 400 ) - 800;
+					object.position.y = ( - ( Math.floor( i / 5 ) % 5 ) * 400 ) + 800;
+					object.position.z = ( Math.floor( i / 25 ) ) * 1000 - 2000;
+
+					targets.grid.push( object );
+
+				}
+
+				//
+
+				renderer = new THREE.CSS3DRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+				//
+
+				controls = new THREE.TrackballControls( camera, renderer.domElement );
+				controls.rotateSpeed = 1;
+				controls.minDistance = 500;
+				controls.maxDistance = 6000;
+				controls.addEventListener( 'change', render );
+
+				var button = document.getElementById( 'table' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.table, 2000 );
+
+				}, false );
+
+				var button = document.getElementById( 'sphere' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.sphere, 2000 );
+
+	
+				}, false );
+
+				var button = document.getElementById( 'helix' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.helix, 2000 );
+
+				}, false );
+
+				var button = document.getElementById( 'grid' );
+				button.addEventListener( 'click', function ( event ) {
+
+					transform( targets.grid, 2000 );
+
+				}, false );
+
+				transform( targets.table, 2000 );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+
+
+				
+
+			}
+
+			
+
+			function transform( targets, duration ) {
+
+				TWEEN.removeAll();
+
+				for ( var i = 0; i < objects.length; i ++ ) {
+
+					var object = objects[ i ];
+					var target = targets[ i ];
+
+					new TWEEN.Tween( object.position )
+						.to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.start();
+
+					new TWEEN.Tween( object.rotation )
+						.to( { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.start();
+
+				}
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+	TWEEN.update();
+
+				controls.update();
+
+			}
+			
+			function render() {
+				
+				renderer.render( scene, camera );
+
+			}
+
+
+		</script>
+	</body>
+</html>
